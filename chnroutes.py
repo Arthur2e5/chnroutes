@@ -167,6 +167,10 @@ def generate_pac(metric):
     logic = textwrap.dedent("""\
     function inChina(host)
     {
+        if (shExpMatch(host, "*.google.*")) {
+            return false;
+        }
+
         var ip = dnsResolve(host);
         for (var i = 0; i < CHINESE_SUBNETS.length; i++) {
             var subnet = CHINESE_SUBNETS[i][0];
