@@ -22,26 +22,26 @@ def generate_ovpn(metric):
 def generate_linux(metric):
     results = fetch_ip_data()
     upscript_header=textwrap.dedent("""\
-    #!/bin/bash
+    #!/bin/sh
     export PATH="/bin:/sbin:/usr/sbin:/usr/bin"
 
-    OLDGW=`ip route show | grep '^default' | sed -e 's/default via \\([^ ]*\\).*/\\1/'`
+    OLDGW=$(ip route show | grep '^default' | sed -e 's/default via \\([^ ]*\\).*/\\1/')
 
-    if [ $OLDGW == '' ]; then
+    if [ "$OLDGW" == '' ]; then
         exit 0
     fi
 
     if [ ! -e /tmp/vpn_oldgw ]; then
-        echo $OLDGW > /tmp/vpn_oldgw
+        printf '%s\n' "$OLDGW" > /tmp/vpn_oldgw
     fi
 
     """)
 
     downscript_header=textwrap.dedent("""\
-    #!/bin/bash
+    #!/bin/sh
     export PATH="/bin:/sbin:/usr/sbin:/usr/bin"
 
-    OLDGW=`cat /tmp/vpn_oldgw`
+    OLDGW=$(cat /tmp/vpn_oldgw)
 
     """)
 
@@ -69,11 +69,11 @@ def generate_mac(metric):
     upscript_header=textwrap.dedent("""\
     #!/bin/sh
     export PATH="/bin:/sbin:/usr/sbin:/usr/bin"
-
-    OLDGW=`netstat -nr | grep '^default' | grep -v 'ppp' | sed 's/default *\\([0-9\.]*\\) .*/\\1/'`
+    
+    OLDGW=`netstat -nr | grep '^default' | grep -v 'ppp' | sed 's/default *\\([0-9\.]*\\) .*/\\1/' | awk '{if($1){print $1}}'`
 
     if [ ! -e /tmp/pptp_oldgw ]; then
-        echo "${OLDGW}" > /tmp/pptp_oldgw
+        printf '%s\n' "$OLDGW" > /tmp/pptp_oldgw
     fi
 
     dscacheutil -flushcache
