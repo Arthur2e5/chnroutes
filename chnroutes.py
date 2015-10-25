@@ -69,8 +69,8 @@ def generate_mac(metric):
     upscript_header=textwrap.dedent("""\
     #!/bin/sh
     export PATH="/bin:/sbin:/usr/sbin:/usr/bin"
-
-    OLDGW=`netstat -nr | grep '^default' | grep -v 'ppp' | sed 's/default *\\([0-9\.]*\\) .*/\\1/'`
+    
+    OLDGW=`netstat -nr | grep '^default' | grep -v 'ppp' | sed 's/default *\\([0-9\.]*\\) .*/\\1/' | awk '{if($1){print $1}}'`
 
     if [ ! -e /tmp/pptp_oldgw ]; then
         printf '%s\n' "$OLDGW" > /tmp/pptp_oldgw
