@@ -220,19 +220,26 @@ def generate_android(metric):
 
     upscript_header=textwrap.dedent("""\
     #!/bin/sh
-    alias nestat='/system/xbin/busybox netstat'
-    alias grep='/system/xbin/busybox grep'
-    alias awk='/system/xbin/busybox awk'
-    alias route='/system/xbin/busybox route'
-
-    OLDGW=`netstat -rn | grep ^0\.0\.0\.0 | awk '{print $2}'`
-
+    busybox="$(PATH="/system/xbin/busybox:$PATH" which busybox || echo /system/xbin/busybox)"
+    phas(){ type "$@" &>/dev/null; }
+    bhas(){ "$busybox" "$@" &>/dev/null; }
+    
+    phas netstat || alias nestat='"$busybox" netstat'
+    phas grep || alias grep='"$busybox" grep'
+    phsa route || alias route='"$busybox" route'
+    
+    read _ OLDGW _ << EOF
+    $(netstat -rn | grep ^0\.0\.0\.0)
+    EOF
+    
     """)
 
     downscript_header=textwrap.dedent("""\
-    #!/bin/sh
-    alias route='/system/xbin/busybox route'
-
+    busybox="$(PATH="/system/xbin/busybox:$PATH" which busybox || echo /system/xbin/busybox)"
+    phas(){ type "$@" &>/dev/null; }
+    bhas(){ "$busybox" "$@" &>/dev/null; }
+    phas route || alias route='/system/xbin/busybox route'
+    
     """)
 
     upfile=open('vpnup.sh','w')
