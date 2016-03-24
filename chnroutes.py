@@ -228,7 +228,10 @@ def generate_android(metric):
     phas grep || alias grep='"$busybox" grep'
     phsa route || alias route='"$busybox" route'
     
-    read _ OLDGW _ << EOF
+    while read _ _OLDGW _; do
+        OLDGW="$OLDGW
+    $_OLDGW"
+    done << EOF
     $(netstat -rn | grep ^0\.0\.0\.0)
     EOF
     
